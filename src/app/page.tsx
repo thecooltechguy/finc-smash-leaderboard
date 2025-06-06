@@ -237,7 +237,7 @@ export default function SmashTournamentELO() {
       }}
     >
       {/* Smash-style header */}
-      <header className="max-w-5xl mx-auto bg-gradient-to-r from-red-600 to-red-700 border-b-4 border-yellow-500 shadow-lg relative overflow-hidden rounded-b-3xl">
+      <header className="max-w-5xl mx-auto bg-gradient-to-r from-red-600 to-red-700 border-b-4 border-yellow-500 shadow-lg relative overflow-hidden rounded-3xl mt-4">
         {/* Glare effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 skew-x-12 transform -translate-x-full"></div>
 
@@ -278,7 +278,7 @@ export default function SmashTournamentELO() {
       </header>
 
       {/* Navigation */}
-      <nav className="max-w-5xl mx-auto bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 shadow-md sticky top-0 z-50 mt-4 rounded-xl mx-4">
+      <nav className="max-w-5xl mx-auto bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 shadow-md sticky top-0 z-50 mt-8 rounded-xl mx-4">
         <div className="max-w-5xl mx-auto">
           <ul className="flex rounded-xl overflow-hidden">
             {[
@@ -319,7 +319,7 @@ export default function SmashTournamentELO() {
       </nav>
 
       {/* Main content */}
-      <main className="max-w-5xl mx-auto px-4 py-6">
+      <main className="max-w-5xl mx-auto py-3">
         {error && (
           <div className="bg-gradient-to-r from-red-600 to-red-700 border border-red-800 text-white px-4 py-3 rounded-xl mb-6 flex justify-between items-center shadow-lg">
             <span className="text-lg">{error}</span>
