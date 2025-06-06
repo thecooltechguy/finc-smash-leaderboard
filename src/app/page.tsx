@@ -228,7 +228,7 @@ export default function SmashTournamentELO() {
 
   return (
     <div
-      className="p-6 md:p-0 min-h-screen bg-black text-white antialiased"
+      className="flex flex-col items-center p-6 md:p-0 min-h-screen bg-black text-white antialiased"
       style={{
         backgroundImage:
           "radial-gradient(circle at 50% 50%, rgba(30, 30, 30, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%)",
@@ -237,11 +237,11 @@ export default function SmashTournamentELO() {
       }}
     >
       {/* Smash-style header */}
-      <header className="max-w-5xl mx-auto bg-gradient-to-r from-red-600 to-red-700 border-b-4 border-yellow-500 shadow-lg relative overflow-hidden rounded-3xl md:mt-4">
+      <header className="max-w-5xl w-full bg-gradient-to-r from-red-600 to-red-700 border-b-4 border-yellow-500 shadow-lg relative overflow-hidden rounded-3xl md:mt-4">
         {/* Glare effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 skew-x-12 transform -translate-x-full"></div>
 
-        <div className="max-w-5xl mx-auto py-6 flex justify-center items-center relative z-10">
+        <div className="py-6 flex justify-center items-center relative z-10">
           <div className="flex items-center space-x-8">
             {/* Founders Inc Logo */}
             <img
@@ -278,8 +278,8 @@ export default function SmashTournamentELO() {
       </header>
 
       {/* Navigation */}
-      <nav className="max-w-5xl mx-auto bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 shadow-md sticky top-0 z-50 mt-6 rounded-xl mx-4">
-        <div className="max-w-5xl mx-auto">
+      <nav className="max-w-5xl  bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 shadow-md sticky top-0 z-50 mt-6 rounded-xl mx-4">
+        <div className="max-w-5xl ">
           <ul className="flex rounded-xl overflow-hidden">
             {[
               { id: "rankings", icon: <Trophy size={20} />, label: "Rankings" },
@@ -319,7 +319,7 @@ export default function SmashTournamentELO() {
       </nav>
 
       {/* Main content */}
-      <main className="max-w-5xl mx-auto py-3">
+      <main className="max-w-5xl w-full py-3">
         {error && (
           <div className="bg-gradient-to-r from-red-600 to-red-700 border border-red-800 text-white px-4 py-3 rounded-xl mb-6 flex justify-between items-center shadow-lg">
             <span className="text-lg">{error}</span>
