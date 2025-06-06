@@ -228,7 +228,7 @@ export default function SmashTournamentELO() {
 
   return (
     <div
-      className="min-h-screen bg-black text-white antialiased"
+      className="p-6 md:p-0 min-h-screen bg-black text-white antialiased"
       style={{
         backgroundImage:
           "radial-gradient(circle at 50% 50%, rgba(30, 30, 30, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%)",
@@ -237,7 +237,7 @@ export default function SmashTournamentELO() {
       }}
     >
       {/* Smash-style header */}
-      <header className="max-w-5xl mx-auto bg-gradient-to-r from-red-600 to-red-700 border-b-4 border-yellow-500 shadow-lg relative overflow-hidden rounded-3xl mt-4">
+      <header className="max-w-5xl mx-auto bg-gradient-to-r from-red-600 to-red-700 border-b-4 border-yellow-500 shadow-lg relative overflow-hidden rounded-3xl md:mt-4">
         {/* Glare effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 skew-x-12 transform -translate-x-full"></div>
 
