@@ -278,7 +278,7 @@ export default function SmashTournamentELO() {
       </header>
 
       {/* Navigation */}
-      <nav className="max-w-5xl mx-auto bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 shadow-md sticky top-0 z-50 mt-8 rounded-xl mx-4">
+      <nav className="max-w-5xl mx-auto bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 shadow-md sticky top-0 z-50 mt-6 rounded-xl mx-4">
         <div className="max-w-5xl mx-auto">
           <ul className="flex rounded-xl overflow-hidden">
             {[
