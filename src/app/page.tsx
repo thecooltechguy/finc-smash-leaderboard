@@ -247,14 +247,14 @@ export default function SmashTournamentELO() {
             <img
               src="/images/founders-icon.png"
               alt="Founders Inc Logo"
-              className="h-12 w-auto object-contain"
+              className="hidden md:block h-12 w-auto object-contain"
               style={{
                 filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3))",
               }}
             />
 
             <h1
-              className="text-5xl font-bold tracking-wide uppercase text-white"
+              className="hidden md:block text-5xl font-bold tracking-wide uppercase text-white"
               style={{
                 textShadow:
                   "0 0 15px rgba(255, 255, 255, 0.6), 3px 3px 6px rgba(0, 0, 0, 0.8)",
@@ -288,7 +288,7 @@ export default function SmashTournamentELO() {
               <li key={tab.id} className="flex-1">
                 <button
                   onClick={() => setActiveTab(tab.id as "tiers" | "rankings")}
-                  className={`w-full px-8 py-5 flex items-center justify-center space-x-3 transition-all duration-200 relative overflow-hidden text-xl font-semibold ${
+                  className={`w-full px-8 py-5 flex flex-col md:flex-row items-center justify-center space-x-3 transition-all duration-200 relative overflow-hidden text-xl font-semibold ${
                     activeTab === tab.id
                       ? "bg-gradient-to-b from-red-600 to-red-700 text-white"
                       : "text-gray-400 hover:text-white hover:bg-gray-800"
@@ -362,7 +362,7 @@ export default function SmashTournamentELO() {
                   {/* Glare effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 skew-x-12 transform -translate-x-full"></div>
 
-                  <div className="flex items-center relative z-10 justify-between w-full">
+                  <div className="flex flex-col md:flex-row items-center relative z-10 justify-between w-full">
                     <div className="flex items-center space-x-2">
                       <Trophy
                         className="mr-3 text-yellow-500"
@@ -410,25 +410,25 @@ export default function SmashTournamentELO() {
                       <table className="w-full divide-y divide-gray-800">
                         <thead>
                           <tr className="bg-gradient-to-r from-gray-800 to-gray-700">
-                            <th className="px-6 py-6 text-left text-lg font-bold text-gray-300 uppercase tracking-wider rounded-tl-xl w-24">
+                            <th className="px-2 py-3 md:px-6 md:py-6 text-left text-xs md:text-lg font-bold text-gray-300 uppercase tracking-wider rounded-tl-xl w-24">
                               Rank
                             </th>
-                            <th className="px-6 py-6 text-left text-lg font-bold text-gray-300 uppercase tracking-wider">
+                            <th className="px-2 py-3 md:px-6 md:py-6 text-left text-xs md:text-lg font-bold text-gray-300 uppercase tracking-wider">
                               Player
                             </th>
                             {/* <th className="px-4 py-4 text-left text-sm font-bold text-gray-300 uppercase tracking-wider w-32">
                               Main
                             </th> */}
-                            <th className="px-6 py-6 text-left text-lg font-bold text-gray-300 uppercase tracking-wider w-32">
+                            <th className="px-2 py-3 md:px-6 md:py-6 text-left text-xs md:text-lg font-bold text-gray-300 uppercase tracking-wider w-32">
                               <div className="flex items-center">
                                 <span>ELO</span>
                                 <ArrowUpDown
-                                  size={20}
-                                  className="ml-2 text-gray-500"
+                                  size={12}
+                                  className="ml-1 md:ml-2 text-gray-500 md:w-5 md:h-5"
                                 />
                               </div>
                             </th>
-                            <th className="px-6 py-6 text-left text-lg font-bold text-gray-300 uppercase tracking-wider rounded-tr-xl w-24">
+                            <th className="px-2 py-3 md:px-6 md:py-6 text-left text-xs md:text-lg font-bold text-gray-300 uppercase tracking-wider rounded-tr-xl w-24">
                               Tier
                             </th>
                             {/* <th className="px-4 py-4 text-left text-sm font-bold text-gray-300 uppercase tracking-wider rounded-tr-xl w-32">
@@ -446,18 +446,18 @@ export default function SmashTournamentELO() {
                                 className="hover:bg-gray-800 transition-colors duration-150"
                               >
                                 <td
-                                  className={`px-6 py-8 whitespace-nowrap ${
+                                  className={`px-2 py-3 md:px-6 md:py-8 whitespace-nowrap ${
                                     isLast ? "rounded-bl-xl" : ""
                                   }`}
                                 >
                                   <div className="flex items-center">
-                                    <span className="text-3xl font-bold text-white">
+                                    <span className="text-sm md:text-3xl font-bold text-white">
                                       #{index + 1}
                                     </span>
                                     {index === 0 && (
                                       <Trophy
-                                        size={24}
-                                        className="ml-3 text-yellow-500"
+                                        size={14}
+                                        className="ml-1 md:ml-3 md:w-6 md:h-6 text-yellow-500"
                                         style={{
                                           filter:
                                             "drop-shadow(0 0 5px rgba(255, 215, 0, 0.5))",
@@ -466,17 +466,17 @@ export default function SmashTournamentELO() {
                                     )}
                                   </div>
                                 </td>
-                                <td className="px-6 py-8 whitespace-nowrap text-2xl font-bold text-white">
-                                  <div className="flex items-center space-x-4">
+                                <td className="px-2 py-3 md:px-6 md:py-8 whitespace-nowrap text-sm md:text-2xl font-bold text-white">
+                                  <div className="flex items-center space-x-2 md:space-x-4">
                                     {getProfilePicture(player) ? (
                                       <img
                                         src={getProfilePicture(player)!}
                                         alt={player.display_name || player.name}
-                                        className="h-14 w-14 rounded-full object-cover border-2 border-gray-600"
+                                        className="h-8 w-8 md:h-14 md:w-14 rounded-full object-cover border-2 border-gray-600"
                                       />
                                     ) : (
-                                      <div className="h-14 w-14 rounded-full bg-gray-700 flex items-center justify-center border-2 border-gray-600">
-                                        <span className="text-lg font-bold text-gray-300">
+                                      <div className="h-8 w-8 md:h-14 md:w-14 rounded-full bg-gray-700 flex items-center justify-center border-2 border-gray-600">
+                                        <span className="text-xs md:text-lg font-bold text-gray-300">
                                           {getInitials(player)}
                                         </span>
                                       </div>
@@ -497,9 +497,9 @@ export default function SmashTournamentELO() {
                                     </span>
                                   )}
                                 </td> */}
-                                <td className="px-6 py-8 whitespace-nowrap">
+                                <td className="px-2 py-3 md:px-6 md:py-8 whitespace-nowrap">
                                   <span
-                                    className="text-2xl font-bold text-yellow-500 bg-gray-800 px-4 py-2 rounded-full"
+                                    className="text-sm md:text-2xl font-bold text-yellow-500 bg-gray-800 px-2 py-1 md:px-4 md:py-2 rounded-full"
                                     style={{
                                       textShadow:
                                         "0 0 10px rgba(255, 215, 0, 0.6)",
@@ -509,12 +509,12 @@ export default function SmashTournamentELO() {
                                   </span>
                                 </td>
                                 <td
-                                  className={`px-6 py-8 whitespace-nowrap ${
+                                  className={`px-2 py-3 md:px-6 md:py-8 whitespace-nowrap ${
                                     isLast ? "rounded-br-xl" : ""
                                   }`}
                                 >
                                   <span
-                                    className={`px-4 py-2 inline-flex text-lg font-bold rounded-full ${getTierBadgeColor(
+                                    className={`px-2 py-1 md:px-4 md:py-2 inline-flex text-xs md:text-lg font-bold rounded-full ${getTierBadgeColor(
                                       tier
                                     )} shadow-lg`}
                                   >
