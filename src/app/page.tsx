@@ -1253,14 +1253,19 @@ export default function SmashTournamentELO() {
                                   </div>
                                   <div className="bg-gray-700 bg-opacity-30 rounded-lg p-2">
                                     <div className="text-cyan-400 font-bold">
-                                      {player.total_kos && player.matches > 0
+                                      {(player.total_kos || 0) > 0 &&
+                                      (player.total_falls || 0) +
+                                        (player.total_sds || 0) >
+                                        0
                                         ? (
-                                            player.total_kos / player.matches
-                                          ).toFixed(1)
-                                        : "0.0"}
+                                            (player.total_kos || 0) /
+                                            ((player.total_falls || 0) +
+                                              (player.total_sds || 0))
+                                          ).toFixed(2)
+                                        : "0.00"}
                                     </div>
                                     <div className="text-gray-400 text-xs">
-                                      KO/Game
+                                      K/D Ratio
                                     </div>
                                   </div>
                                 </div>

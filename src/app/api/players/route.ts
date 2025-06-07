@@ -45,17 +45,26 @@ export async function GET() {
           );
         }
 
-        // Extract wins and losses from the stats result
+        // Extract wins, losses, and combat stats from the stats result
         const playerStats =
           stats && stats.length > 0
             ? stats[0]
-            : { total_wins: 0, total_losses: 0 };
+            : {
+                total_wins: 0,
+                total_losses: 0,
+                total_kos: 0,
+                total_falls: 0,
+                total_sds: 0,
+              };
 
         return {
           ...player,
           main_character: mainCharacter || null,
           total_wins: Number(playerStats.total_wins) || 0,
           total_losses: Number(playerStats.total_losses) || 0,
+          total_kos: Number(playerStats.total_kos) || 0,
+          total_falls: Number(playerStats.total_falls) || 0,
+          total_sds: Number(playerStats.total_sds) || 0,
         };
       })
     );
