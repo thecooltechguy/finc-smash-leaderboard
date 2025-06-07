@@ -1285,6 +1285,33 @@ export default function SmashTournamentELO() {
           </>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="mt-12 mb-6 text-center">
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl px-6 py-4 border border-gray-700 shadow-lg max-w-md mx-auto">
+          <p className="text-gray-300 text-sm">
+            Made with{" "}
+            <span className="text-red-500 animate-pulse text-lg">❤️</span> by{" "}
+            <a
+              href="https://twitter.com/subby_tech"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200 hover:underline"
+            >
+              subby
+            </a>{" "}
+            and{" "}
+            <a
+              href="https://twitter.com/haseab_"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200 hover:underline"
+            >
+              haseab
+            </a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
