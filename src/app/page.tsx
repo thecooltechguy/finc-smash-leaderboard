@@ -1,17 +1,44 @@
 "use client";
 
 import { Player } from "@/lib/supabase";
-import { ArrowUpDown, List, Trophy } from "lucide-react";
+import { ArrowUpDown, List, Swords, Trophy, Users } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 
 // Extended player interface for frontend with real stats
 interface ExtendedPlayer extends Player {
   matches: number;
+  main_character?: string;
+  total_wins?: number;
+  total_losses?: number;
+  total_kos?: number;
+  total_falls?: number;
+  total_sds?: number;
+}
+
+// Match participant interface
+interface MatchParticipant {
+  id: number;
+  player: number;
+  player_name: string;
+  player_display_name: string | null;
+  smash_character: string;
+  is_cpu: boolean;
+  total_kos: number;
+  total_falls: number;
+  total_sds: number;
+  has_won: boolean;
+}
+
+// Match interface
+interface Match {
+  id: number;
+  created_at: string;
+  participants: MatchParticipant[];
 }
 
 type Tier = "S" | "A" | "B" | "C" | "D" | "E";
 
-// Memoized component for refresh status to prevent unnecessary rerenders
+// Memoized component for refresh status to prevent unnecessary rerendersO
 const RefreshStatus = memo(
   ({
     refreshing,
@@ -55,7 +82,10 @@ RefreshStatus.displayName = "RefreshStatus";
 export default function SmashTournamentELO() {
   // State management
   const [players, setPlayers] = useState<ExtendedPlayer[]>([]);
-  const [activeTab, setActiveTab] = useState<"tiers" | "rankings">("rankings");
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [activeTab, setActiveTab] = useState<
+    "tiers" | "rankings" | "matches" | "players"
+  >("rankings");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -113,10 +143,12 @@ export default function SmashTournamentELO() {
   // Fetch players from database
   useEffect(() => {
     fetchPlayers();
+    fetchMatches();
 
     // Set up automatic refresh every 30 seconds
     const refreshInterval = setInterval(() => {
       fetchPlayers(true); // Pass true to indicate this is a background refresh
+      fetchMatches();
       setCountdown(30); // Reset countdown after refresh
     }, 30000);
 
@@ -178,6 +210,20 @@ export default function SmashTournamentELO() {
       } else {
         setRefreshing(false);
       }
+    }
+  };
+
+  const fetchMatches = async () => {
+    try {
+      const response = await fetch("/api/matches");
+      if (!response.ok) {
+        throw new Error("Failed to fetch matches");
+      }
+      const data: Match[] = await response.json();
+      setMatches(data);
+    } catch (err) {
+      console.error("Error fetching matches:", err);
+      // Don't set error state for matches as it's secondary to players
     }
   };
 
@@ -316,10 +362,16 @@ export default function SmashTournamentELO() {
             {[
               { id: "rankings", icon: <Trophy size={20} />, label: "Rankings" },
               { id: "tiers", icon: <List size={20} />, label: "Tier List" },
+              { id: "matches", icon: <Swords size={20} />, label: "Matches" },
+              { id: "players", icon: <Users size={20} />, label: "Players" },
             ].map((tab, index) => (
               <li key={tab.id} className="">
                 <button
-                  onClick={() => setActiveTab(tab.id as "tiers" | "rankings")}
+                  onClick={() =>
+                    setActiveTab(
+                      tab.id as "tiers" | "rankings" | "matches" | "players"
+                    )
+                  }
                   className={`w-full px-4 py-5 flex flex-col md:flex-row items-center justify-center space-x-3 transition-all duration-200 relative overflow-hidden text-xl font-semibold ${
                     activeTab === tab.id
                       ? "bg-gradient-to-b from-red-600 to-red-700 text-white"
@@ -333,7 +385,9 @@ export default function SmashTournamentELO() {
                     borderRadius:
                       index === 0
                         ? "0.75rem 0 0 0.75rem"
-                        : "0 0.75rem 0.75rem 0",
+                        : index === 3
+                        ? "0 0.75rem 0.75rem 0"
+                        : "0",
                   }}
                 >
                   {/* Glare effect for active tab */}
@@ -742,6 +796,477 @@ export default function SmashTournamentELO() {
                             );
                           }
                         )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Matches Tab */}
+            {activeTab === "matches" && (
+              <div>
+                {matches.length === 0 ? (
+                  <div className="text-gray-400 text-center py-16 bg-gray-900 bg-opacity-50 rounded-2xl">
+                    <p className="text-2xl font-bold">
+                      No battles have been fought yet!
+                    </p>
+                    <p className="mt-2 text-lg">
+                      Start playing some matches to see the battle history
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl border border-gray-700 shadow-lg relative">
+                    {/* Loading overlay when refreshing */}
+                    {refreshing && (
+                      <div className="absolute inset-0 bg-black bg-opacity-20 z-10 flex items-center justify-center backdrop-blur-sm rounded-2xl">
+                        <div className="bg-gray-800 bg-opacity-90 px-6 py-3 rounded-full flex items-center space-x-3 border border-gray-600">
+                          <div className="animate-spin h-5 w-5 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
+                          <span className="text-white font-medium">
+                            Updating match history...
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="px-6 py-5 bg-gradient-to-r from-red-600 to-red-700 flex items-center justify-between relative overflow-hidden rounded-t-2xl">
+                      {/* Glare effect */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 skew-x-12 transform -translate-x-full"></div>
+
+                      <div className="flex flex-col md:flex-row items-center relative z-10 justify-between w-full">
+                        <div className="flex items-center space-x-2">
+                          <Swords
+                            className="mr-3 text-yellow-500"
+                            size={24}
+                            style={{
+                              filter:
+                                "drop-shadow(0 0 5px rgba(255, 215, 0, 0.5))",
+                            }}
+                          />
+                          <div>
+                            <h2
+                              className="text-2xl font-bold text-white"
+                              style={{
+                                textShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
+                              }}
+                            >
+                              Match History
+                            </h2>
+                          </div>
+                        </div>
+                        <RefreshStatus
+                          refreshing={refreshing}
+                          countdown={countdown}
+                          lastUpdated={lastUpdated}
+                          centered={false}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`p-6 transition-opacity duration-300 ${
+                        refreshing ? "opacity-75" : "opacity-100"
+                      }`}
+                    >
+                      <div className="space-y-4">
+                        {matches.slice(0, 20).map((match) => {
+                          const winner = match.participants.find(
+                            (p) => p.has_won
+                          );
+                          const loser = match.participants.find(
+                            (p) => !p.has_won
+                          );
+
+                          return (
+                            <div
+                              key={match.id}
+                              className="bg-gray-800 rounded-xl p-4 border border-gray-700 hover:border-gray-600 transition-colors"
+                            >
+                              <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                                {/* Match Date */}
+                                <div className="text-gray-400 text-sm">
+                                  {new Date(
+                                    match.created_at
+                                  ).toLocaleDateString()}{" "}
+                                  •{" "}
+                                  {new Date(
+                                    match.created_at
+                                  ).toLocaleTimeString()}
+                                </div>
+
+                                {/* Match Result */}
+                                <div className="flex items-center space-x-4">
+                                  {/* Winner */}
+                                  <div className="flex items-center space-x-3 bg-green-900 bg-opacity-30 px-4 py-2 rounded-lg border border-green-500">
+                                    {getProfilePicture({
+                                      name: winner?.player_name || "",
+                                      display_name: winner?.player_display_name,
+                                    } as ExtendedPlayer) ? (
+                                      <img
+                                        src={
+                                          getProfilePicture({
+                                            name: winner?.player_name || "",
+                                            display_name:
+                                              winner?.player_display_name,
+                                          } as ExtendedPlayer)!
+                                        }
+                                        alt={
+                                          winner?.player_display_name ||
+                                          winner?.player_name
+                                        }
+                                        className="h-8 w-8 rounded-full object-cover border border-green-400"
+                                      />
+                                    ) : (
+                                      <div className="h-8 w-8 rounded-full bg-green-600 flex items-center justify-center border border-green-400">
+                                        <span className="text-xs font-bold text-white">
+                                          {getInitials({
+                                            name: winner?.player_name || "",
+                                            display_name:
+                                              winner?.player_display_name,
+                                          } as ExtendedPlayer)}
+                                        </span>
+                                      </div>
+                                    )}
+                                    <div>
+                                      <div className="text-white font-semibold">
+                                        {winner?.player_display_name ||
+                                          winner?.player_name}
+                                      </div>
+                                      <div className="text-green-400 text-sm font-medium">
+                                        {winner?.smash_character}
+                                      </div>
+                                    </div>
+                                    <div className="text-green-400 font-bold text-lg">
+                                      W
+                                    </div>
+                                  </div>
+
+                                  <div className="text-gray-500 font-bold text-xl">
+                                    VS
+                                  </div>
+
+                                  {/* Loser */}
+                                  <div className="flex items-center space-x-3 bg-red-900 bg-opacity-30 px-4 py-2 rounded-lg border border-red-500">
+                                    {getProfilePicture({
+                                      name: loser?.player_name || "",
+                                      display_name: loser?.player_display_name,
+                                    } as ExtendedPlayer) ? (
+                                      <img
+                                        src={
+                                          getProfilePicture({
+                                            name: loser?.player_name || "",
+                                            display_name:
+                                              loser?.player_display_name,
+                                          } as ExtendedPlayer)!
+                                        }
+                                        alt={
+                                          loser?.player_display_name ||
+                                          loser?.player_name
+                                        }
+                                        className="h-8 w-8 rounded-full object-cover border border-red-400"
+                                      />
+                                    ) : (
+                                      <div className="h-8 w-8 rounded-full bg-red-600 flex items-center justify-center border border-red-400">
+                                        <span className="text-xs font-bold text-white">
+                                          {getInitials({
+                                            name: loser?.player_name || "",
+                                            display_name:
+                                              loser?.player_display_name,
+                                          } as ExtendedPlayer)}
+                                        </span>
+                                      </div>
+                                    )}
+                                    <div>
+                                      <div className="text-white font-semibold">
+                                        {loser?.player_display_name ||
+                                          loser?.player_name}
+                                      </div>
+                                      <div className="text-red-400 text-sm font-medium">
+                                        {loser?.smash_character}
+                                      </div>
+                                    </div>
+                                    <div className="text-red-400 font-bold text-lg">
+                                      L
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Match Stats */}
+                                <div className="flex space-x-6 text-sm">
+                                  <div className="text-center">
+                                    <div className="text-gray-400">KOs</div>
+                                    <div className="text-white font-bold">
+                                      {winner?.total_kos || 0} -{" "}
+                                      {loser?.total_kos || 0}
+                                    </div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-gray-400">Falls</div>
+                                    <div className="text-white font-bold">
+                                      {winner?.total_falls || 0} -{" "}
+                                      {loser?.total_falls || 0}
+                                    </div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-gray-400">SDs</div>
+                                    <div className="text-white font-bold">
+                                      {winner?.total_sds || 0} -{" "}
+                                      {loser?.total_sds || 0}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Players Tab */}
+            {activeTab === "players" && (
+              <div>
+                {sortedPlayers.length === 0 ? (
+                  <div className="text-gray-400 text-center py-16 bg-gray-900 bg-opacity-50 rounded-2xl">
+                    <p className="text-2xl font-bold">
+                      No fighters have joined the roster yet!
+                    </p>
+                    <p className="mt-2 text-lg">
+                      Add some players to see their detailed profiles
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl border border-gray-700 shadow-lg relative">
+                    {/* Loading overlay when refreshing */}
+                    {refreshing && (
+                      <div className="absolute inset-0 bg-black bg-opacity-20 z-10 flex items-center justify-center backdrop-blur-sm rounded-2xl">
+                        <div className="bg-gray-800 bg-opacity-90 px-6 py-3 rounded-full flex items-center space-x-3 border border-gray-600">
+                          <div className="animate-spin h-5 w-5 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
+                          <span className="text-white font-medium">
+                            Updating player profiles...
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="px-6 py-5 bg-gradient-to-r from-red-600 to-red-700 flex items-center justify-between relative overflow-hidden rounded-t-2xl">
+                      {/* Glare effect */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 skew-x-12 transform -translate-x-full"></div>
+
+                      <div className="flex flex-col md:flex-row items-center relative z-10 justify-between w-full">
+                        <div className="flex items-center space-x-2">
+                          <Users
+                            className="mr-3 text-yellow-500"
+                            size={24}
+                            style={{
+                              filter:
+                                "drop-shadow(0 0 5px rgba(255, 215, 0, 0.5))",
+                            }}
+                          />
+                          <div>
+                            <h2
+                              className="text-2xl font-bold text-white"
+                              style={{
+                                textShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
+                              }}
+                            >
+                              Fighter Profiles
+                            </h2>
+                          </div>
+                        </div>
+                        <RefreshStatus
+                          refreshing={refreshing}
+                          countdown={countdown}
+                          lastUpdated={lastUpdated}
+                          centered={false}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`p-6 transition-opacity duration-300 ${
+                        refreshing ? "opacity-75" : "opacity-100"
+                      }`}
+                    >
+                      {/* Player Cards Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {sortedPlayers.map((player, index) => {
+                          const tier = getTier(player.elo, tierThresholds);
+                          const winRate =
+                            player.total_wins &&
+                            player.total_wins + (player.total_losses || 0) > 0
+                              ? (
+                                  (player.total_wins /
+                                    (player.total_wins +
+                                      (player.total_losses || 0))) *
+                                  100
+                                ).toFixed(1)
+                              : "0.0";
+
+                          return (
+                            <div
+                              key={player.id}
+                              className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:transform hover:scale-105 shadow-lg relative overflow-hidden"
+                            >
+                              {/* Rank badge */}
+                              <div className="absolute top-4 right-4">
+                                <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                                  #{index + 1}
+                                </div>
+                              </div>
+
+                              {/* Player Avatar and Info */}
+                              <div className="flex flex-col items-center mb-6">
+                                <div className="relative mb-4">
+                                  {getProfilePicture(player) ? (
+                                    <img
+                                      src={getProfilePicture(player)!}
+                                      alt={player.display_name || player.name}
+                                      className="h-20 w-20 rounded-full object-cover border-4 border-gray-600 shadow-xl"
+                                    />
+                                  ) : (
+                                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center border-4 border-gray-600 shadow-xl">
+                                      <span className="text-2xl font-bold text-white">
+                                        {getInitials(player)}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {/* Tier badge on avatar */}
+                                  <div
+                                    className={`absolute -bottom-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getTierBadgeColor(
+                                      tier
+                                    )} shadow-lg border-2 border-gray-800`}
+                                  >
+                                    {tier}
+                                  </div>
+                                </div>
+
+                                <h3 className="text-xl font-bold text-white mb-1 text-center">
+                                  {player.display_name || player.name}
+                                </h3>
+
+                                {/* ELO Display */}
+                                <div className="bg-gray-700 px-4 py-2 rounded-full mb-2">
+                                  <span className="text-yellow-500 font-bold text-lg">
+                                    {player.elo} ELO
+                                  </span>
+                                </div>
+
+                                {/* Main Character */}
+                                {player.main_character && (
+                                  <div className="bg-blue-900 bg-opacity-50 px-3 py-1 rounded-full border border-blue-500">
+                                    <span className="text-blue-300 text-sm font-medium">
+                                      Main: {player.main_character}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Stats Section */}
+                              <div className="space-y-4">
+                                {/* Win/Loss Record */}
+                                <div className="bg-gray-700 bg-opacity-50 rounded-lg p-4">
+                                  <h4 className="text-gray-300 text-sm font-semibold mb-3 uppercase tracking-wide">
+                                    Match Record
+                                  </h4>
+                                  <div className="flex justify-between items-center mb-2">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                      <span className="text-green-400 font-bold">
+                                        Wins
+                                      </span>
+                                    </div>
+                                    <span className="text-white font-bold text-lg">
+                                      {player.total_wins || 0}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between items-center mb-3">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                      <span className="text-red-400 font-bold">
+                                        Losses
+                                      </span>
+                                    </div>
+                                    <span className="text-white font-bold text-lg">
+                                      {player.total_losses || 0}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 font-medium">
+                                      Win Rate
+                                    </span>
+                                    <span className="text-yellow-400 font-bold">
+                                      {winRate}%
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Combat Stats */}
+                                <div className="bg-gray-700 bg-opacity-50 rounded-lg p-4">
+                                  <h4 className="text-gray-300 text-sm font-semibold mb-3 uppercase tracking-wide">
+                                    Combat Stats
+                                  </h4>
+                                  <div className="grid grid-cols-3 gap-4 text-center">
+                                    <div>
+                                      <div className="text-orange-400 font-bold text-lg">
+                                        {player.total_kos || 0}
+                                      </div>
+                                      <div className="text-gray-400 text-xs uppercase">
+                                        KOs
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-purple-400 font-bold text-lg">
+                                        {player.total_falls || 0}
+                                      </div>
+                                      <div className="text-gray-400 text-xs uppercase">
+                                        Falls
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-red-400 font-bold text-lg">
+                                        {player.total_sds || 0}
+                                      </div>
+                                      <div className="text-gray-400 text-xs uppercase">
+                                        SDs
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Additional Stats */}
+                                <div className="grid grid-cols-2 gap-2 text-center">
+                                  <div className="bg-gray-700 bg-opacity-30 rounded-lg p-2">
+                                    <div className="text-blue-400 font-bold">
+                                      {player.matches}
+                                    </div>
+                                    <div className="text-gray-400 text-xs">
+                                      Matches
+                                    </div>
+                                  </div>
+                                  <div className="bg-gray-700 bg-opacity-30 rounded-lg p-2">
+                                    <div className="text-cyan-400 font-bold">
+                                      {player.total_kos && player.matches > 0
+                                        ? (
+                                            player.total_kos / player.matches
+                                          ).toFixed(1)
+                                        : "0.0"}
+                                    </div>
+                                    <div className="text-gray-400 text-xs">
+                                      KO/Game
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Decorative elements */}
+                              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent opacity-50"></div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
