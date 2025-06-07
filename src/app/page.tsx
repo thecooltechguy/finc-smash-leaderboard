@@ -75,13 +75,39 @@ export default function SmashTournamentELO() {
     };
   }, []);
 
-  // Constants for tier classification
-  const TIER_THRESHOLDS = {
-    S: 1800,
-    A: 1600,
-    B: 1400,
-    C: 1200,
-    D: 1000,
+  // Calculate percentile-based tier thresholds
+  const calculateTierThresholds = (sortedPlayers: ExtendedPlayer[]) => {
+    if (sortedPlayers.length === 0) {
+      return { S: 2000, A: 1800, B: 1600, C: 1400, D: 1200 };
+    }
+
+    const totalPlayers = sortedPlayers.length;
+
+    // Define what percentage of players should be in each tier
+    const tierPercentages = {
+      S: 0.15, // Top 15% of players
+      A: 0.3, // Next 15% (top 30% total)
+      B: 0.5, // Next 20% (top 50% total)
+      C: 0.75, // Next 25% (top 75% total)
+      D: 0.9, // Next 15% (top 90% total)
+      // E: remaining 10%
+    };
+
+    const getPlayerAtPercentile = (percentile: number) => {
+      const index = Math.min(
+        sortedPlayers.length - 1,
+        Math.floor(percentile * totalPlayers)
+      );
+      return sortedPlayers[index];
+    };
+
+    return {
+      S: sortedPlayers[0]?.elo || 2000, // Top player's ELO
+      A: getPlayerAtPercentile(tierPercentages.S)?.elo || 1800,
+      B: getPlayerAtPercentile(tierPercentages.A)?.elo || 1600,
+      C: getPlayerAtPercentile(tierPercentages.B)?.elo || 1400,
+      D: getPlayerAtPercentile(tierPercentages.C)?.elo || 1200,
+    };
   };
 
   // Fetch players from database
@@ -155,18 +181,24 @@ export default function SmashTournamentELO() {
     }
   };
 
-  // Determine tier based on ELO
-  const getTier = (elo: number): Tier => {
-    if (elo >= TIER_THRESHOLDS.S) return "S";
-    if (elo >= TIER_THRESHOLDS.A) return "A";
-    if (elo >= TIER_THRESHOLDS.B) return "B";
-    if (elo >= TIER_THRESHOLDS.C) return "C";
-    if (elo >= TIER_THRESHOLDS.D) return "D";
+  // Determine tier based on ELO using percentile-based thresholds
+  const getTier = (
+    elo: number,
+    tierThresholds: ReturnType<typeof calculateTierThresholds>
+  ): Tier => {
+    if (elo >= tierThresholds.S) return "S";
+    if (elo >= tierThresholds.A) return "A";
+    if (elo >= tierThresholds.B) return "B";
+    if (elo >= tierThresholds.C) return "C";
+    if (elo >= tierThresholds.D) return "D";
     return "E";
   };
 
   // Sort players by ELO
   const sortedPlayers = [...players].sort((a, b) => b.elo - a.elo);
+
+  // Calculate dynamic tier thresholds
+  const tierThresholds = calculateTierThresholds(sortedPlayers);
 
   // Get player initials from name or display_name
   const getInitials = (player: ExtendedPlayer): string => {
@@ -222,7 +254,7 @@ export default function SmashTournamentELO() {
   };
 
   sortedPlayers.forEach((player) => {
-    const tier = getTier(player.elo);
+    const tier = getTier(player.elo, tierThresholds);
     tierList[tier].push(player);
   });
 
@@ -278,17 +310,17 @@ export default function SmashTournamentELO() {
       </header>
 
       {/* Navigation */}
-      <nav className="max-w-5xl  bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 shadow-md sticky top-0 z-50 mt-6 rounded-xl mx-4">
-        <div className="max-w-5xl ">
+      <nav className="bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 shadow-md sticky top-0 z-50 mt-6 rounded-xl mx-4">
+        <div className="">
           <ul className="flex rounded-xl overflow-hidden">
             {[
               { id: "rankings", icon: <Trophy size={20} />, label: "Rankings" },
-              { id: "tiers", icon: <List size={20} />, label: "Fighters" },
+              { id: "tiers", icon: <List size={20} />, label: "Tier List" },
             ].map((tab, index) => (
-              <li key={tab.id} className="flex-1">
+              <li key={tab.id} className="">
                 <button
                   onClick={() => setActiveTab(tab.id as "tiers" | "rankings")}
-                  className={`w-full px-8 py-5 flex flex-col md:flex-row items-center justify-center space-x-3 transition-all duration-200 relative overflow-hidden text-xl font-semibold ${
+                  className={`w-full px-4 py-5 flex flex-col md:flex-row items-center justify-center space-x-3 transition-all duration-200 relative overflow-hidden text-xl font-semibold ${
                     activeTab === tab.id
                       ? "bg-gradient-to-b from-red-600 to-red-700 text-white"
                       : "text-gray-400 hover:text-white hover:bg-gray-800"
@@ -438,7 +470,6 @@ export default function SmashTournamentELO() {
                         </thead>
                         <tbody className="bg-gray-900 divide-y divide-gray-800">
                           {sortedPlayers.map((player, index) => {
-                            const tier = getTier(player.elo);
                             const isLast = index === sortedPlayers.length - 1;
                             return (
                               <tr
@@ -515,10 +546,10 @@ export default function SmashTournamentELO() {
                                 >
                                   <span
                                     className={`px-2 py-1 md:px-4 md:py-2 inline-flex text-xs md:text-lg font-bold rounded-full ${getTierBadgeColor(
-                                      tier
+                                      getTier(player.elo, tierThresholds)
                                     )} shadow-lg`}
                                   >
-                                    {tier}
+                                    {getTier(player.elo, tierThresholds)}
                                   </span>
                                 </td>
                                 {/* <td
@@ -562,10 +593,10 @@ export default function SmashTournamentELO() {
                     </p>
                   </div>
                 ) : (
-                  <div className="bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl overflow-hidden border border-gray-700 shadow-lg relative">
+                  <div className="bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl border border-gray-700 shadow-lg relative">
                     {/* Loading overlay when refreshing */}
                     {refreshing && (
-                      <div className="absolute inset-0 bg-black bg-opacity-20 z-10 flex items-center justify-center backdrop-blur-sm">
+                      <div className="absolute inset-0 bg-black bg-opacity-20 z-10 flex items-center justify-center backdrop-blur-sm rounded-2xl">
                         <div className="bg-gray-800 bg-opacity-90 px-6 py-3 rounded-full flex items-center space-x-3 border border-gray-600">
                           <div className="animate-spin h-5 w-5 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
                           <span className="text-white font-medium">
@@ -631,7 +662,7 @@ export default function SmashTournamentELO() {
                             return (
                               <div
                                 key={tierName}
-                                className="flex bg-gray-800 rounded-lg overflow-hidden border border-gray-700"
+                                className="flex bg-gray-800 rounded-lg border border-gray-700 relative"
                               >
                                 {/* Tier Label */}
                                 <div
@@ -651,7 +682,7 @@ export default function SmashTournamentELO() {
                                 </div>
 
                                 {/* Players in Tier */}
-                                <div className="flex-1 p-4">
+                                <div className="flex-1 p-4 relative">
                                   {tierPlayers.length === 0 ? (
                                     <div className="flex items-center justify-center h-16 text-gray-500 italic">
                                       No players in this tier
@@ -692,7 +723,7 @@ export default function SmashTournamentELO() {
                                           </div>
 
                                           {/* Player name and ELO tooltip on hover */}
-                                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black bg-opacity-90 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black bg-opacity-95 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[9999] shadow-xl border border-gray-600">
                                             <div className="font-semibold">
                                               {player.display_name ||
                                                 player.name}
@@ -700,7 +731,7 @@ export default function SmashTournamentELO() {
                                             <div className="text-yellow-400 font-bold">
                                               ELO: {player.elo}
                                             </div>
-                                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black border-opacity-90"></div>
+                                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
                                           </div>
                                         </div>
                                       ))}
