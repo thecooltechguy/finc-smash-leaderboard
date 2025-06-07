@@ -697,26 +697,6 @@ export default function SmashTournamentELO() {
                           (tierName) => {
                             const tierPlayers = tierList[tierName];
 
-                            // Get tier colors matching official tier list
-                            const getTierRowColor = (tier: Tier): string => {
-                              switch (tier) {
-                                case "S":
-                                  return "bg-red-500";
-                                case "A":
-                                  return "bg-orange-500";
-                                case "B":
-                                  return "bg-yellow-500";
-                                case "C":
-                                  return "bg-green-500";
-                                case "D":
-                                  return "bg-blue-500";
-                                case "E":
-                                  return "bg-purple-500";
-                                default:
-                                  return "bg-gray-500";
-                              }
-                            };
-
                             return (
                               <div
                                 key={tierName}
@@ -724,7 +704,7 @@ export default function SmashTournamentELO() {
                               >
                                 {/* Tier Label */}
                                 <div
-                                  className={`${getTierRowColor(
+                                  className={`${getTierBadgeColor(
                                     tierName
                                   )} w-20 flex items-center justify-center py-4`}
                                 >
@@ -746,7 +726,7 @@ export default function SmashTournamentELO() {
                                       No players in this tier
                                     </div>
                                   ) : (
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap gap-4">
                                       {tierPlayers.map((player) => (
                                         <div
                                           key={player.id}
@@ -874,11 +854,12 @@ export default function SmashTournamentELO() {
                     >
                       <div className="space-y-4">
                         {matches.slice(0, 20).map((match) => {
-                          const winner = match.participants.find(
-                            (p) => p.has_won
-                          );
-                          const loser = match.participants.find(
-                            (p) => !p.has_won
+                          const participants = match.participants.sort(
+                            (a, b) => {
+                              if (a.has_won && !b.has_won) return -1;
+                              if (!a.has_won && b.has_won) return 1;
+                              return 0;
+                            }
                           );
 
                           return (
@@ -886,138 +867,147 @@ export default function SmashTournamentELO() {
                               key={match.id}
                               className="bg-gray-800 rounded-xl p-4 border border-gray-700 hover:border-gray-600 transition-colors"
                             >
-                              <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-                                {/* Match Date */}
-                                <div className="text-gray-400 text-sm">
-                                  {new Date(
-                                    match.created_at
-                                  ).toLocaleDateString()}{" "}
-                                  •{" "}
-                                  {new Date(
-                                    match.created_at
-                                  ).toLocaleTimeString()}
-                                </div>
-
-                                {/* Match Result */}
-                                <div className="flex items-center space-x-4">
-                                  {/* Winner */}
-                                  <div className="flex items-center space-x-3 bg-green-900 bg-opacity-30 px-4 py-2 rounded-lg border border-green-500">
-                                    {getProfilePicture({
-                                      name: winner?.player_name || "",
-                                      display_name: winner?.player_display_name,
-                                    } as ExtendedPlayer) ? (
-                                      <img
-                                        src={
-                                          getProfilePicture({
-                                            name: winner?.player_name || "",
-                                            display_name:
-                                              winner?.player_display_name,
-                                          } as ExtendedPlayer)!
-                                        }
-                                        alt={
-                                          winner?.player_display_name ||
-                                          winner?.player_name
-                                        }
-                                        className="h-8 w-8 rounded-full object-cover border border-green-400"
-                                      />
-                                    ) : (
-                                      <div className="h-8 w-8 rounded-full bg-green-600 flex items-center justify-center border border-green-400">
-                                        <span className="text-xs font-bold text-white">
-                                          {getInitials({
-                                            name: winner?.player_name || "",
-                                            display_name:
-                                              winner?.player_display_name,
-                                          } as ExtendedPlayer)}
-                                        </span>
-                                      </div>
-                                    )}
-                                    <div>
-                                      <div className="text-white font-semibold">
-                                        {winner?.player_display_name ||
-                                          winner?.player_name}
-                                      </div>
-                                      <div className="text-green-400 text-sm font-medium">
-                                        {winner?.smash_character}
-                                      </div>
-                                    </div>
-                                    <div className="text-green-400 font-bold text-lg">
-                                      W
-                                    </div>
+                              <div className="flex flex-col space-y-4">
+                                {/* Match Header */}
+                                <div className="flex justify-between items-center">
+                                  <div className="text-gray-400 text-sm">
+                                    {new Date(
+                                      match.created_at
+                                    ).toLocaleDateString()}{" "}
+                                    •{" "}
+                                    {new Date(
+                                      match.created_at
+                                    ).toLocaleTimeString()}
                                   </div>
-
-                                  <div className="text-gray-500 font-bold text-xl">
-                                    VS
-                                  </div>
-
-                                  {/* Loser */}
-                                  <div className="flex items-center space-x-3 bg-red-900 bg-opacity-30 px-4 py-2 rounded-lg border border-red-500">
-                                    {getProfilePicture({
-                                      name: loser?.player_name || "",
-                                      display_name: loser?.player_display_name,
-                                    } as ExtendedPlayer) ? (
-                                      <img
-                                        src={
-                                          getProfilePicture({
-                                            name: loser?.player_name || "",
-                                            display_name:
-                                              loser?.player_display_name,
-                                          } as ExtendedPlayer)!
-                                        }
-                                        alt={
-                                          loser?.player_display_name ||
-                                          loser?.player_name
-                                        }
-                                        className="h-8 w-8 rounded-full object-cover border border-red-400"
-                                      />
-                                    ) : (
-                                      <div className="h-8 w-8 rounded-full bg-red-600 flex items-center justify-center border border-red-400">
-                                        <span className="text-xs font-bold text-white">
-                                          {getInitials({
-                                            name: loser?.player_name || "",
-                                            display_name:
-                                              loser?.player_display_name,
-                                          } as ExtendedPlayer)}
-                                        </span>
-                                      </div>
-                                    )}
-                                    <div>
-                                      <div className="text-white font-semibold">
-                                        {loser?.player_display_name ||
-                                          loser?.player_name}
-                                      </div>
-                                      <div className="text-red-400 text-sm font-medium">
-                                        {loser?.smash_character}
-                                      </div>
-                                    </div>
-                                    <div className="text-red-400 font-bold text-lg">
-                                      L
-                                    </div>
+                                  <div className="text-gray-500 font-medium">
+                                    {participants.length} Player
+                                    {participants.length > 1 ? "s" : ""}
                                   </div>
                                 </div>
 
-                                {/* Match Stats */}
-                                <div className="flex space-x-6 text-sm">
-                                  <div className="text-center">
-                                    <div className="text-gray-400">KOs</div>
-                                    <div className="text-white font-bold">
-                                      {winner?.total_kos || 0} -{" "}
-                                      {loser?.total_kos || 0}
+                                {/* All Participants */}
+                                <div className="flex flex-wrap gap-4 justify-between">
+                                  {participants.map((participant) => (
+                                    <div
+                                      key={participant.id}
+                                      className={`flex flex-col space-y-3 px-4 py-3 rounded-lg border transition-all ${
+                                        participants.length === 1
+                                          ? "w-80"
+                                          : participants.length === 2
+                                          ? "flex-1 max-w-md"
+                                          : participants.length === 3
+                                          ? "w-72"
+                                          : participants.length === 4
+                                          ? "w-52"
+                                          : "w-44"
+                                      } ${
+                                        participant.has_won
+                                          ? "bg-green-900 bg-opacity-30 border-green-500 shadow-green-500/20 shadow-lg"
+                                          : "bg-red-900 bg-opacity-20 border-red-600"
+                                      }`}
+                                    >
+                                      {/* Player Header */}
+                                      <div className="flex items-center space-x-3">
+                                        {/* Player Avatar */}
+                                        {getProfilePicture({
+                                          name: participant.player_name,
+                                          display_name:
+                                            participant.player_display_name,
+                                        } as ExtendedPlayer) ? (
+                                          <img
+                                            src={
+                                              getProfilePicture({
+                                                name: participant.player_name,
+                                                display_name:
+                                                  participant.player_display_name,
+                                              } as ExtendedPlayer)!
+                                            }
+                                            alt={
+                                              participant.player_display_name ||
+                                              participant.player_name
+                                            }
+                                            className={`h-10 w-10 rounded-full object-cover border-2 ${
+                                              participant.has_won
+                                                ? "border-green-400"
+                                                : "border-red-400"
+                                            }`}
+                                          />
+                                        ) : (
+                                          <div
+                                            className={`h-10 w-10 rounded-full flex items-center justify-center border-2 ${
+                                              participant.has_won
+                                                ? "bg-green-600 border-green-400"
+                                                : "bg-red-600 border-red-400"
+                                            }`}
+                                          >
+                                            <span className="text-xs font-bold text-white">
+                                              {getInitials({
+                                                name: participant.player_name,
+                                                display_name:
+                                                  participant.player_display_name,
+                                              } as ExtendedPlayer)}
+                                            </span>
+                                          </div>
+                                        )}
+
+                                        {/* Player Info */}
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-white font-semibold truncate">
+                                            {participant.player_display_name ||
+                                              participant.player_name}
+                                          </div>
+                                          <div
+                                            className={`text-sm font-medium ${
+                                              participant.has_won
+                                                ? "text-green-400"
+                                                : "text-red-400"
+                                            }`}
+                                          >
+                                            {participant.smash_character}
+                                          </div>
+                                        </div>
+
+                                        {/* Win/Loss Indicator */}
+                                        <div
+                                          className={`font-bold text-lg ${
+                                            participant.has_won
+                                              ? "text-green-400"
+                                              : "text-red-400"
+                                          }`}
+                                        >
+                                          {participant.has_won ? "W" : "L"}
+                                        </div>
+                                      </div>
+
+                                      {/* Individual Player Stats */}
+                                      <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                                        <div className="bg-black bg-opacity-20 rounded px-2 py-1">
+                                          <div className="text-orange-400 font-bold">
+                                            {participant.total_kos || 0}
+                                          </div>
+                                          <div className="text-gray-400">
+                                            KOs
+                                          </div>
+                                        </div>
+                                        <div className="bg-black bg-opacity-20 rounded px-2 py-1">
+                                          <div className="text-purple-400 font-bold">
+                                            {participant.total_falls || 0}
+                                          </div>
+                                          <div className="text-gray-400">
+                                            Falls
+                                          </div>
+                                        </div>
+                                        <div className="bg-black bg-opacity-20 rounded px-2 py-1">
+                                          <div className="text-red-400 font-bold">
+                                            {participant.total_sds || 0}
+                                          </div>
+                                          <div className="text-gray-400">
+                                            SDs
+                                          </div>
+                                        </div>
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="text-center">
-                                    <div className="text-gray-400">Falls</div>
-                                    <div className="text-white font-bold">
-                                      {winner?.total_falls || 0} -{" "}
-                                      {loser?.total_falls || 0}
-                                    </div>
-                                  </div>
-                                  <div className="text-center">
-                                    <div className="text-gray-400">SDs</div>
-                                    <div className="text-white font-bold">
-                                      {winner?.total_sds || 0} -{" "}
-                                      {loser?.total_sds || 0}
-                                    </div>
-                                  </div>
+                                  ))}
                                 </div>
                               </div>
                             </div>
