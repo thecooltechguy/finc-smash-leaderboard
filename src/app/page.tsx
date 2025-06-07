@@ -269,6 +269,7 @@ export default function SmashTournamentELO() {
     if (nameToUse.includes("will")) return "/images/will.png";
     if (nameToUse.includes("ryy")) return "/images/ryy.png";
     if (nameToUse.includes("jmoon")) return "/images/jmoon.png";
+    if (nameToUse.includes("keneru")) return "/images/keneru.png";
 
     return null;
   };
