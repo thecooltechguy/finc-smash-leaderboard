@@ -92,6 +92,18 @@ export default function SmashTournamentELO() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(30);
 
+  // Function to handle player click and scroll
+  const handlePlayerClick = (playerId: number) => {
+    setActiveTab("players");
+    // Use setTimeout to ensure the tab switch happens before scrolling
+    setTimeout(() => {
+      const element = document.getElementById(`player-${playerId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 100);
+  };
+
   // Load Google Font
   useEffect(() => {
     const link = document.createElement("link");
@@ -201,6 +213,19 @@ export default function SmashTournamentELO() {
 
       setPlayers(playersWithMatches);
       setLastUpdated(new Date());
+
+      // Check for hash after players are loaded
+      const hash = window.location.hash;
+      if (hash.startsWith('#player-')) {
+        const playerId = parseInt(hash.replace('#player-', ''));
+        setActiveTab("players");
+        setTimeout(() => {
+          const element = document.getElementById(`player-${playerId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 100);
+      }
     } catch (err) {
       console.error("Error fetching players:", err);
       setError("Failed to load players. Please try again later.");
@@ -564,7 +589,10 @@ export default function SmashTournamentELO() {
                                   </div>
                                 </td>
                                 <td className="px-2 py-3 md:px-6 md:py-8 whitespace-nowrap text-sm md:text-2xl font-bold text-white">
-                                  <div className="flex items-center space-x-2 md:space-x-4">
+                                  <div 
+                                    className="flex items-center space-x-2 md:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handlePlayerClick(player.id)}
+                                  >
                                     {getProfilePicture(player) ? (
                                       <img
                                         src={getProfilePicture(player)!}
@@ -738,10 +766,11 @@ export default function SmashTournamentELO() {
                                       {tierPlayers.map((player) => (
                                         <div
                                           key={player.id}
-                                          className="relative group"
+                                          className="relative group cursor-pointer"
                                           title={`${
                                             player.display_name || player.name
                                           } - ELO: ${player.elo}`}
+                                          onClick={() => handlePlayerClick(player.id)}
                                         >
                                           <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-600 group-hover:border-yellow-400 transition-all duration-200 bg-gray-700">
                                             {getProfilePicture(player) ? (
@@ -1111,6 +1140,7 @@ export default function SmashTournamentELO() {
                           return (
                             <div
                               key={player.id}
+                              id={`player-${player.id}`}
                               className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:transform hover:scale-105 shadow-lg relative overflow-hidden"
                             >
                               {/* Rank badge */}
