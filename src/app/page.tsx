@@ -2,7 +2,7 @@
 
 import { Player } from "@/lib/supabase";
 import { ArrowUpDown, List, Swords, Trophy, Users } from "lucide-react";
-import { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 
 // Extended player interface for frontend with real stats
 interface ExtendedPlayer extends Player {
@@ -377,7 +377,7 @@ export default function SmashTournamentELO() {
                       tab.id as "tiers" | "rankings" | "matches" | "players"
                     )
                   }
-                  className={`w-full px-4 py-5 flex flex-col md:flex-row items-center justify-center space-x-3 transition-all duration-200 relative overflow-hidden text-xl font-semibold ${
+                  className={`w-full px-2 py-3 md:px-4 md:py-5 flex flex-col md:flex-row items-center justify-center space-y-1 md:space-y-0 md:space-x-3 transition-all duration-200 relative overflow-hidden text-sm md:text-xl font-semibold ${
                     activeTab === tab.id
                       ? "bg-gradient-to-b from-red-600 to-red-700 text-white"
                       : "text-gray-400 hover:text-white hover:bg-gray-800"
@@ -400,8 +400,15 @@ export default function SmashTournamentELO() {
                     <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 skew-x-12 transform -translate-x-full"></div>
                   )}
 
-                  <span className="relative z-10">{tab.icon}</span>
-                  <span className="relative z-10">{tab.label}</span>
+                  <span className="relative z-10">
+                    <span className="block md:hidden">
+                      {React.cloneElement(tab.icon, { size: 16 })}
+                    </span>
+                    <span className="hidden md:block">{tab.icon}</span>
+                  </span>
+                  <span className="relative z-10 text-xs md:text-xl">
+                    {tab.label}
+                  </span>
                 </button>
               </li>
             ))}
