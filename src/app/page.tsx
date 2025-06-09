@@ -1327,8 +1327,8 @@ export default function SmashTournamentELO() {
               className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200 hover:underline"
             >
               subby
-            </a>{" "}
-            and{" "}
+            </a>
+            ,{" "}
             <a
               href="https://twitter.com/haseab_"
               target="_blank"
@@ -1336,6 +1336,15 @@ export default function SmashTournamentELO() {
               className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200 hover:underline"
             >
               haseab
+            </a>
+            , and{" "}
+            <a
+              href="https://twitter.com/thiteanish"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200 hover:underline"
+            >
+              anish
             </a>
           </p>
         </div>
