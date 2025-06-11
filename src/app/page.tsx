@@ -295,7 +295,7 @@ export default function SmashTournamentELO() {
     if (nameToUse.includes("ryy")) return "/images/ryy.png";
     if (nameToUse.includes("jmoon")) return "/images/jmoon.png";
     if (nameToUse.includes("keneru")) return "/images/keneru.png";
-    if (nameToUse.includes("rp")) return "/images/rp.png";
+    if (nameToUse.includes("rp")) return "/images/ryanp.png";
     if (nameToUse.includes("samin")) return "/images/samin.png";
     if (nameToUse.includes("stav")) return "/images/stav.png";
     if (nameToUse.includes("ya")) return "/images/ya.png";
