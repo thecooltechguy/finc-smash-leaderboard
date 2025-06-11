@@ -216,8 +216,8 @@ export default function SmashTournamentELO() {
 
       // Check for hash after players are loaded
       const hash = window.location.hash;
-      if (hash.startsWith('#player-')) {
-        const playerId = parseInt(hash.replace('#player-', ''));
+      if (hash.startsWith("#player-")) {
+        const playerId = parseInt(hash.replace("#player-", ""));
         setActiveTab("players");
         setTimeout(() => {
           const element = document.getElementById(`player-${playerId}`);
@@ -295,6 +295,10 @@ export default function SmashTournamentELO() {
     if (nameToUse.includes("ryy")) return "/images/ryy.png";
     if (nameToUse.includes("jmoon")) return "/images/jmoon.png";
     if (nameToUse.includes("keneru")) return "/images/keneru.png";
+    if (nameToUse.includes("rp")) return "/images/rp.png";
+    if (nameToUse.includes("samin")) return "/images/samin.png";
+    if (nameToUse.includes("stav")) return "/images/stav.png";
+    if (nameToUse.includes("ya")) return "/images/ya.png";
 
     return null;
   };
@@ -345,7 +349,7 @@ export default function SmashTournamentELO() {
       }}
     >
       {/* Smash-style header */}
-      <header className="max-w-5xl w-full bg-gradient-to-r from-red-600 to-red-700 border-b-4 border-yellow-500 shadow-lg relative overflow-hidden rounded-3xl md:mt-4">
+      <header className="max-w-5xl w-full bg-gradient-to-r from-red-600 to-red-700 border-b-4 border-yellow-500 shadow-lg relative overflow-hidden rounded-3xl md:mt-8">
         {/* Glare effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 skew-x-12 transform -translate-x-full"></div>
 
@@ -589,7 +593,7 @@ export default function SmashTournamentELO() {
                                   </div>
                                 </td>
                                 <td className="px-2 py-3 md:px-6 md:py-8 whitespace-nowrap text-sm md:text-2xl font-bold text-white">
-                                  <div 
+                                  <div
                                     className="flex items-center space-x-2 md:space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
                                     onClick={() => handlePlayerClick(player.id)}
                                   >
@@ -770,7 +774,9 @@ export default function SmashTournamentELO() {
                                           title={`${
                                             player.display_name || player.name
                                           } - ELO: ${player.elo}`}
-                                          onClick={() => handlePlayerClick(player.id)}
+                                          onClick={() =>
+                                            handlePlayerClick(player.id)
+                                          }
                                         >
                                           <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-600 group-hover:border-yellow-400 transition-all duration-200 bg-gray-700">
                                             {getProfilePicture(player) ? (
