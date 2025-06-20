@@ -120,35 +120,38 @@ export default function SmashTournamentELO() {
   // Calculate percentile-based tier thresholds
   const calculateTierThresholds = (sortedPlayers: ExtendedPlayer[]) => {
     if (sortedPlayers.length === 0) {
-      return { S: 2000, A: 1800, B: 1600, C: 1400, D: 1200 };
+      return { S: 2000, A: 1800, B: 1600, C: 1400, D: 1200, E: 1000 };
     }
 
-    const totalPlayers = sortedPlayers.length;
+    // Get all ELO scores in ascending order for percentile calculation
+    const ascendingElos = [...sortedPlayers]
+      .sort((a, b) => a.elo - b.elo)
+      .map((p) => p.elo);
 
-    // Define what percentage of players should be in each tier
-    const tierPercentages = {
-      S: 0.15, // Top 15% of players
-      A: 0.3, // Next 15% (top 30% total)
-      B: 0.5, // Next 20% (top 50% total)
-      C: 0.75, // Next 25% (top 75% total)
-      D: 0.9, // Next 15% (top 90% total)
-      // E: remaining 10%
-    };
+    // Function to calculate percentile value from ELO scores
+    const getPercentile = (percentile: number): number => {
+      const index = (percentile / 100) * (ascendingElos.length - 1);
+      const lower = Math.floor(index);
+      const upper = Math.ceil(index);
 
-    const getPlayerAtPercentile = (percentile: number) => {
-      const index = Math.min(
-        sortedPlayers.length - 1,
-        Math.floor(percentile * totalPlayers)
+      if (lower === upper) {
+        return ascendingElos[lower];
+      }
+
+      // Linear interpolation between the two closest values
+      const weight = index - lower;
+      return (
+        ascendingElos[lower] * (1 - weight) + ascendingElos[upper] * weight
       );
-      return sortedPlayers[index];
     };
 
     return {
-      S: sortedPlayers[0]?.elo || 2000, // Top player's ELO
-      A: getPlayerAtPercentile(tierPercentages.S)?.elo || 1800,
-      B: getPlayerAtPercentile(tierPercentages.A)?.elo || 1600,
-      C: getPlayerAtPercentile(tierPercentages.B)?.elo || 1400,
-      D: getPlayerAtPercentile(tierPercentages.C)?.elo || 1200,
+      S: getPercentile(90), // 90th percentile and above = S tier (top 10%)
+      A: getPercentile(75), // 75th percentile and above = A tier or higher
+      B: getPercentile(50), // 50th percentile and above = B tier or higher
+      C: getPercentile(25), // 25th percentile and above = C tier or higher
+      D: getPercentile(10), // 10th percentile and above = D tier or higher
+      E: Math.min(...ascendingElos), // Everyone else is E tier
     };
   };
 
@@ -301,6 +304,8 @@ export default function SmashTournamentELO() {
     if (nameToUse.includes("ya")) return "/images/ya.png";
     if (nameToUse.includes("jackedson")) return "/images/jackedson.png";
     if (nameToUse.includes("shafaq")) return "/images/shafaq.png";
+    if (nameToUse.includes("david")) return "/images/david.png";
+    if (nameToUse.includes("bihan")) return "/images/bihan.png";
 
     return null;
   };
